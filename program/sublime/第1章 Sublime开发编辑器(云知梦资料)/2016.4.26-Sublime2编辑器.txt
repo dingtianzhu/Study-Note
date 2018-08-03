@@ -1,0 +1,94 @@
+2016.4.26-Sublime2编辑器笔记:
+
+1.sublime快捷键如何添加
+1)开始
+2)运行
+3)regedit(打开系统注册表)
+4)ctrl+f(搜索shell)
+5)在shell下新建Sublime选项
+6)在Sublime选项下新建command选项
+7)在command下打开"默认"写以下内容:
+"C:\Program Files\Sublime Text\SublimeText.exe" -p --remote-tab-silent "%1"
+
+2.sublime开启vi功能
+1)安装VintageEx插件
+2)开启vi
+"ignored_packages": []
+
+3.vi编辑器的模式
+1)输入模式
+写内容
+
+2)命令模式
+操作快捷键
+
+3)末行模式
+最后退出
+
+4.sublime的快捷键
+1)ctrl+shift+t(恢复已关闭的标签)
+
+5.设置sublime字体大小(首选项->设置->用户)
+"font_size": 18.0,
+
+6.改变sublime编辑器的默认打开模式(首选项->程序包->Vintage->Preferences.sublime-settings)
+"vintage_start_in_command_mode": true
+
+7.命令模式->输入模式
+1)i 前面插入
+2)a 后面插入
+3)o 换行插入
+4)s 替换插入
+5)I 行首
+6)A 行尾
+7)O 上一行
+8)S 删除整行
+
+8.输入模式->命令模式
+esc(一次)
+
+9.命令模式->末行模式
+:
+
+10.末行模式->命令模式
+esc(两次)
+
+11.命令模式有哪些命令
+1) h  左
+2) j  下
+3) k  上
+4) l  右
+5) dd 删除一行,剪切一行(ndd)
+6) G  最后一行
+7) 1G 第一行  nG第几行
+8) yy 复制当前行
+9) 3yy 复制三行
+10) r  单字符替换 
+11) p  粘贴到下一行
+12) 2p 重复粘贴两次
+13) P  粘贴上一行
+14) u  撤销
+15) ctrl+y 恢复
+16) x  删除当前字符,3x删除三个字符
+17) dG 从当前行删除到最后一行 
+18) d1G从当前行删除到第一行
+19) dw 删除一个单词
+20) d^ 从当前字符删除到行首
+21) d$ 从当前字符删除到行末
+22) v  按v键再按上下左右进行视图选中，进行快速缩进(选区块)
+23) /hello 查找hello单词，查找多个n键  
+
+12.多光标操作
+ctrl+鼠标左键
+
+13.块移动
+1)右
+tab
+
+2)左
+shift+tab
+
+14.末行模式有哪些命令
+1) w 保存
+2) wq|x 保存退出
+

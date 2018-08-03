@@ -1,0 +1,30 @@
+git config --global user.name 'tianzhu'
+git config --global user.email '1069470980@qq.com'
+
+
+
+
+git config --list
+
+
+
+
+
+git add . 
+#submit   
+git add "list"
+git commit -m "change1"
+
+
+
+
+
+git log
+
+git remote add origin https://github.com/dingtianzhu/test1
+git remote add origin 你的远程库地址  // 把本地库与远程库关联
+git push -u origin master
+
+
+fatal: 远程 origin 已经存在
+git remote rm origin

@@ -1,0 +1,161 @@
+Ubuntu下搭建Hyperledger Fabric v1.0环境 2018快速国内源
+2018年03月09日 21:16:36
+阅读数：276
+多次尝试才正常启动了Fabric，如遇到各种莫名错误，请参考如下一步步严格安装，特别用户权限需要注意。
+一、安装Ubuntu16
+虚拟机或双系统，虚拟机有VirtualBox或者VMware，Ubuntu 16.04镜像安装好。
+打开系统设置，选择软件和更新 ， 然后在下载自：中选择aliyun
+ 
+
+
+二、安装基础工具
+ 注意操作用户是自建用户，不是root，特别一些命令涉及用户目录的地方要特别注意
+
+首先安装一些常用工具
+
+[plain] view plain copy
+sudo apt-get update   
+sudo apt-get install ssh  
+sudo apt-get install git  
+sudo apt-get install python-pip
+
+node安装
+apt-get install nodejs
+apt install nodejs-legacy
+node -v
+nodejs -v
+
+go需要单独安装下
+
+[plain] view plain copy
+wget https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz  
+sudo tar -C /usr/local -xzf go1.9.linux-amd64.tar.gz  
+gedit /etc/profile  
+编辑全局变量环境，添加一下profile
+
+[plain] view plain copy
+export PATH=$PATH:/usr/local/go/bin  
+export GOROOT=/usr/local/go  
+export GOPATH=/home/<span style="color:#ff0000;">用户名</span>/go  
+export PATH=$PATH:/home/<span style="color:#ff0000;">用户名</span>/go/bin  
+生效profile，建立go目录
+
+[plain] view plain copy
+source /etc/profile  
+mkdir /home/<span style="color:#ff0000;">用户名</span>/go  
+此时酌情重启下系统
+
+
+
+三、安装docker  基于aliyun
+[html] view plain copy
+sudo apt-get update  
+sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common  
+# step 2: 安装GPG证书  
+curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -  
+# Step 3: 写入软件源信息  
+sudo add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"  
+# Step 4: 更新并安装 Docker-CE  
+sudo apt-get -y update  
+sudo apt-get -y install docker-ce  
+
+ 安装docker后还需要添加用户到docker组
+[html] view plain copy
+sudo usermod -aG docker XXX   
+注销并重新登录，然后添加阿里云的Docker Hub镜像： 
+建立docker文件 
+[html] view plain copy
+sudo mkdir -p /etc/docker  
+sudo gedit /etc/docker/daemon.json<span> </span>  
+{
+"registry-mirrors": ["https://obou6wyb.mirror.aliyuncs.com"]
+}
+
+[html] view plain copy
+sudo systemctl daemon-reload  
+sudo systemctl restart docker  
+最后 docker version 看下安装结果
+
+四、安装 Docker-Compose  从DaoClound
+[html] view plain copy
+curl -L https://get.daocloud.io/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose  
+chmod +x /usr/local/bin/docker-compose  
+  
+docker-compose version   
+
+
+五.Fabric源码下载
+首先建好存放源码的文件夹（也可手动建）路径如下： 
+[html] view plain copy
+mkdir –p ~/go/src/github.com/hyperledger   
+cd ~/go/src/github.com/hyperledger   
+git clone https://github.com/hyperledger/fabric.git  
+由于我们只是在搭建环境。不需要最新的代码，所以只需要切换到v1.0.0大版本就行。
+[html] view plain copy
+cd ~/go/src/github.com/hyperledger/fabric 进入fabric目录   
+git checkout v1.0.0  
+
+
+六. Fabric Docker镜像的下载
+
+[html] view plain copy
+cd ~/go/src/github.com/hyperledger/fabric/examples/e2e_cli/  
+source download-dockerimages.sh -c x86_64-1.0.0 -f x86_64-1.0.0  
+  
+docker images   
+
+ 
+
+
+七、启动Fabric网络并完成ChainCode的测试
+现在还停留在e2e_cli文件中（如果没有先进入），这里提供了启动、关闭Fabric网络的自动化脚本。我们要启动Fabric网络，并自动运行Example02 ChainCode的测试，执行一个命令： 
+[html] view plain copy
+./network_setup.sh up  
+这个指令具体进行了如下操作： 
+编译生成Fabric公私钥、证书的程序，程序在目录：fabric/release/linux-amd64/bin
+基于configtx.yaml生成创世区块和通道相关信息，并保存在channel-artifacts文件夹。
+基于crypto-config.yaml生成公私钥和证书信息，并保存在crypto-config文件夹中。
+基于docker-compose-cli.yaml启动1Orderer+4Peer+1CLI的Fabric容器。
+在CLI启动的时候，会运行scripts/script.sh文件，这个脚本文件包含了创建Channel，加入Channel，安装Example02，运行Example02等功能。 
+出现则表示网络运行成功，ctrl+c退出
+
+
+
+
+
+八、手动测试Fabric网络
+这里有官方提供的小例子，在官方例子中，channel名字是mychannel，链码的名字是mycc。 
+首先进入CLI，然后重新打开一个命令行窗口，输入： 
+docker exec -it cli bash 
+这时用户为root@748dafdc900b，在/opt/gopath/src/github.com/hyperledger/fabric/peer目录下，运行以下命令可以查询a账户的余额： 
+peer chaincode query -C mychannel -n mycc -c '{"Args":["query","a"]}' 
+这里写图片描述
+
+方框内可以看见余额为：90
+
+下面我们可以进行转账操作，操作为invoke ，由a转b 50： 
+
+peer chaincode invoke -o orderer.example.com:7050 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n mycc -c '{"Args":["invoke","a","b","50"]}'
+现在转账完毕， 我们试一试再查询一下a账户的余额，重复之前的查询指令，结果为： 
+这里写图片描述
+结果正确，a的余额只有40了。 
+最后，我们需要关闭Fabric，这里先使用exit命令退出cli容器。 
+exit 
+然后类似于启动指令： 
+cd ~/go/src/github.com/hyperledger/fabric/examples/e2e_cli 
+./network_setup.sh down
+
+这里写图片描述
+
+最后，我们整个Fabric的环境已经测试完毕！！ 
+
+
+
+
+教程参考以下：
+
+http://blog.csdn.net/so5418418/article/details/78355868
+
+https://yq.aliyun.com/articles/110806
+
+http://get.daocloud.io/

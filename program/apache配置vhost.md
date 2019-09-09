@@ -1,6 +1,6 @@
 * 将httpd.conf的`Include conf/extra/httpd-vhosts.conf`注释解开
 * 再在extra文件夹下的httpd-vhost.conf文件进行编辑
-# 配置这一块完全是为了phpmyadmin，当然了也可以直接给管理工具配个虚拟域名然后再指向
+* 配置default这一块完全是为了phpmyadmin，当然了也可以直接给管理工具配个虚拟域名然后再指向
 ```
 <VirtualHost _default_:80>
 DocumentRoot "C:/AppServ/www"
